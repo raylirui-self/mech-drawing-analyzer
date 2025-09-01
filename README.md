@@ -5,7 +5,7 @@ An AI-powered system for analyzing mechanical engineering drawings, extracting d
 ## 🌟 Features
 
 - **Automated Drawing Analysis**: Extract dimensions, tolerances, and GD&T symbols from technical drawings
-- **Multi-Model Support**: Works with GPT, Claude-3, and local models (LLaVA via Ollama)
+- **Multi-Model Support**: Works with GPT, Claude, and local models (Gemma3 via Ollama)
 - **Compliance Checking**: Validate drawings against customizable design rules
 - **Smart Preprocessing**: Enhanced image processing using OpenCV for better recognition
 - **Structured Output**: Pydantic models for reliable data extraction
