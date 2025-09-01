@@ -1,0 +1,36 @@
+{
+  "text_rules": [
+    "Minimum wall thickness must be 2mm",
+    "All holes must have position tolerance specified",
+    "Surface finish required for all mating surfaces",
+    "Threads must comply with ISO metric standards",
+    "All critical dimensions must have tolerances"
+  ],
+  "numeric_rules": {
+    "min_wall_thickness": 2.0,
+    "max_aspect_ratio": 10.0,
+    "max_position_tolerance": 0.1,
+    "min_hole_diameter": 1.0,
+    "max_surface_roughness_ra": 3.2,
+    "min_draft_angle": 1.0,
+    "max_tolerance_stack": 0.5
+  },
+  "material_rules": {
+    "allowed_materials": [
+      "Aluminum 6061-T6",
+      "Steel 1018",
+      "Stainless Steel 316",
+      "ABS Plastic",
+      "Nylon 66"
+    ],
+    "require_material_spec": true,
+    "require_heat_treatment": false
+  },
+  "gdt_rules": {
+    "require_datum_references": true,
+    "max_flatness": 0.05,
+    "max_perpendicularity": 0.1,
+    "max_parallelism": 0.1,
+    "max_concentricity": 0.05
+  }
+}

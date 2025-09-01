@@ -1,0 +1,15 @@
+name: mech_drawing_expert
+channels:
+  - conda-forge
+  - defaults
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+  - https://repo.anaconda.com/pkgs/msys2
+dependencies:
+  - anthropic
+  - opencv
+  - openai
+  - matplotlib
+  - transformers
+  - peft
+prefix: C:\Users\lirui\miniconda3\envs\mech_drawing_expert
