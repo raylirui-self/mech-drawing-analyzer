@@ -231,6 +231,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🚀 Roadmap
 
 - [ ] Enhance accuracy and consistency
+  - [ ] addition of OCR
+  - [ ] addition of RAG
+  - [ ] optimized workflow & algorithm
   - [ ] Finetuning local model for better vision
   - [ ] others (TBD)
 - [ ] Enhanced UI (Gradio or others)
