@@ -1,103 +1,38 @@
 """
-Mechanical Drawing Analyzer with Computer Vision and LLM
-Co-Author: AI-assisted development with Claude (Anthropic)
+Mechanical Drawing Analyzer (Legacy) - DEPRECATED
+Use mech_dwg_orchestrator.py instead
+
+This module is kept for backward compatibility but should not be used for new code.
+It has been refactored into separate modules:
+- cv_processor.py: Computer vision functionality
+- llm_client.py: LLM interaction
+- models.py: Data models
+- compliance_rules.py: Compliance checking
+- mech_dwg_orchestrator.py: Main orchestrator
 """
 
-import cv2
-import numpy as np
-import base64
-from typing import List, Dict, Optional, Tuple
-from dataclasses import dataclass
-from pydantic import BaseModel, Field
-import json
-from openai import OpenAI  # or use local models via Ollama/LlamaCpp
-from PIL import Image
-import io
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+from typing import Optional
+from .mech_dwg_orchestrator import MechanicalDrawingAnalyzer as NewAnalyzer
+from .models import PartSpecification, Dimension, GDTSymbol, DrawingView
 
-# Load environment variables from .env file
-# Look for .env in parent directory if running from src/
-env_path = Path(__file__).parent.parent / '.env'
-if not env_path.exists():
-    env_path = Path('.env')  # Fallback to current directory
+# Re-export models for backward compatibility
+__all__ = ['MechanicalDrawingAnalyzer', 'PartSpecification', 
+           'Dimension', 'GDTSymbol', 'DrawingView']
 
-load_dotenv(env_path, override=True)
-openai_api_key = os.getenv("OPENAI_API_KEY")
-anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-
-# Only print API key status in debug mode or when running directly
-if __name__ == "__main__":
-    if openai_api_key:
-        print(f"OpenAI API Key exists and begins {openai_api_key[:8]}")
-    else:
-        print("OpenAI API Key not set")
-        
-    if anthropic_api_key:
-        print(f"Anthropic API Key exists and begins {anthropic_api_key[:7]}")
-    else:
-        print("Anthropic API Key not set")
-
-# Pydantic models for structured output (function calling)
-class Dimension(BaseModel):
-    """Structured dimension extraction"""
-    value: float = Field(description="Numerical value of the dimension")
-    unit: str = Field(description="Unit (mm, in, cm)")
-    tolerance_upper: Optional[float] = Field(None, description="Upper tolerance if specified")
-    tolerance_lower: Optional[float] = Field(None, description="Lower tolerance if specified")
-    feature: str = Field(description="What this dimension measures (e.g., 'hole diameter', 'overall length')")
-    confidence: float = Field(description="Confidence score 0-1")
-
-class GDTSymbol(BaseModel):
-    """GD&T symbol information"""
-    symbol_type: str = Field(description="Type: flatness, perpendicularity, position, etc.")
-    tolerance: float = Field(description="Tolerance value")
-    datum_references: List[str] = Field(default_factory=list, description="Referenced datums")
-    applies_to: str = Field(description="Feature this applies to")
-
-class DrawingView(BaseModel):
-    """Information about a specific view"""
-    view_type: str = Field(description="top, front, side, section, detail, isometric")
-    scale: Optional[str] = Field(None, description="Scale if specified (e.g., '1:2')")
-    contains_features: List[str] = Field(description="List of visible features")
+class MechanicalDrawingAnalyzer(NewAnalyzer):
+    """Legacy analyzer class that inherits from the new implementation"""
     
-class PartSpecification(BaseModel):
-    """Complete part specification from drawing"""
-    part_number: Optional[str] = None
-    material: Optional[str] = None
-    overall_dimensions: Dict[str, Dimension] = Field(default_factory=dict)  # length, width, height
-    critical_dimensions: List[Dimension] = Field(default_factory=list)
-    gdt_requirements: List[GDTSymbol] = Field(default_factory=list)
-    views: List[DrawingView] = Field(default_factory=list)
-    notes: List[str] = Field(default_factory=list)
-    title_block_info: Dict[str, str] = Field(default_factory=dict)
-
-class MechanicalDrawingAnalyzer:
-    """Hybrid CV + LLM analyzer for mechanical drawings"""
-    
-    def __init__(self, llm_provider="openai", model=None, 
+    def __init__(self, provider="openai", model=None, 
                  local_model=None):
-        self.llm_provider = llm_provider
+        from .config import AnalyzerConfig
         
-        # Set default models based on provider
-        if model is None:
-            if llm_provider == "openai":
-                model = "gpt-4.1-mini"  # or gpt-4o-mini for cheaper
-            elif llm_provider == "claude":
-                model = "claude-3-5-haiku-latest"  # or claude-opus-4-1-20250805 || claude-sonnet-4-20250514
-            elif llm_provider == "ollama":
-                model = local_model or "gemma3:4b"  # or "llava:13b" || "bakllava" || other compatible models
-                
-        self.model = model
+        # Convert legacy parameters to new config
+        config = AnalyzerConfig()
+        config.llm_config.provider = provider
+        config.llm_config.model = model or config.llm_config.model
         
-        # Initialize LLM client
-        if llm_provider == "openai":
-            self.client = OpenAI()  # Expects OPENAI_API_KEY env var
-        elif llm_provider == "ollama":
-            # For local models like LLaVA or BakLLaVA
-            import ollama
-            self.client = ollama
+        # Initialize with new architecture
+        super().__init__(config=config)
         elif llm_provider == "claude":
             # For Claude via API
             import anthropic

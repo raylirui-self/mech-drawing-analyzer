@@ -230,6 +230,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🚀 Roadmap
 
+- [x] Modular design with orchestration
 - [ ] Enhance accuracy and consistency
   - [ ] addition of OCR
   - [ ] addition of RAG
