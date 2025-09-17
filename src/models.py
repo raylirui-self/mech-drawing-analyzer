@@ -1,49 +1,44 @@
-def _analyze_with_openai(self, images: Dict, prompt: str, output_model: type) -> PartSpecification:
-    # ... existing code ...
-    
-    try:
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            tools=tools,
-            tool_choice={"type": "function", "function": {"name": "extract_specifications"}}
-        )
-        
-        function_args = json.loads(
-            response.choices[0].message.tool_calls[0].function.arguments
-        )
-        
-        # Sanitize the response before creating the model
-        function_args = self._sanitize_llm_response(function_args)
-        
-        return output_model(**function_args)
-        
-    except Exception as e:
-        print(f"❌ OpenAI API error: {e}")
-        return output_model()
+from pydantic import BaseModel, Field
+from typing import List, Dict, Optional
 
-def _sanitize_llm_response(self, response: Dict) -> Dict:
-    """
-    Fix common LLM response issues.
+class Dimension(BaseModel):
+    """Structured dimension extraction"""
+    value: float = Field(description="Numerical value of the dimension")
+    unit: str = Field(description="Unit (mm, in, cm)")
+    tolerance_upper: Optional[float] = Field(None, description="Upper tolerance if specified")
+    tolerance_lower: Optional[float] = Field(None, description="Lower tolerance if specified")
+    feature: str = Field(description="What this dimension measures (e.g., 'hole diameter', 'overall length')")
+    confidence: float = Field(description="Confidence score 0-1")
+
+class GDTSymbol(BaseModel):
+    """GD&T symbol information"""
+    symbol_type: str = Field(description="Type: flatness, perpendicularity, position, etc.")
+    tolerance: float = Field(description="Tolerance value")
+    datum_references: List[str] = Field(default_factory=list, description="Referenced datums")
+    applies_to: str = Field(description="Feature this applies to")
+
+class DrawingView(BaseModel):
+    """Information about a specific view"""
+    view_type: str = Field(description="top, front, side, section, detail, isometric")
+    scale: Optional[str] = Field(None, description="Scale if specified (e.g., '1:2')")
+    contains_features: List[str] = Field(description="List of visible features")
     
-    Like a translator fixing grammar mistakes - the meaning is there,
-    just needs the format adjusted.
-    """
-    # Fix overall_dimensions if it's a list
-    if 'overall_dimensions' in response and isinstance(response['overall_dimensions'], list):
-        # Convert list to dict with standard keys
-        dims_dict = {}
-        for dim in response['overall_dimensions']:
-            if 'feature' in dim:
-                # Use feature name as key
-                key = dim['feature'].lower().replace(' ', '_')
-                dims_dict[key] = dim
-        response['overall_dimensions'] = dims_dict
-    
-    # Add default confidence if missing
-    if 'critical_dimensions' in response:
-        for dim in response['critical_dimensions']:
-            if 'confidence' not in dim:
-                dim['confidence'] = 0.9  # Default confidence
-    
-    return response
+class PartSpecification(BaseModel):
+    """Complete part specification from drawing"""
+    part_number: Optional[str] = None
+    material: Optional[str] = None
+    overall_dimensions: Dict[str, Dimension] = Field(default_factory=dict)  # length, width, height
+    critical_dimensions: List[Dimension] = Field(default_factory=list)
+    gdt_requirements: List[GDTSymbol] = Field(default_factory=list)
+    views: List[DrawingView] = Field(default_factory=list)
+    notes: List[str] = Field(default_factory=list)
+    title_block_info: Dict[str, str] = Field(default_factory=dict)
+
+class DrawingAnalysisResult(BaseModel):
+    file_path: str
+    specification: PartSpecification
+    compliance_violations: List[str] = Field(default_factory=list)
+    cv_metadata: Dict = Field(default_factory=dict)
+    rag_context: Optional[List[Dict]] = None
+    processing_info: Dict = Field(default_factory=dict)
+
