@@ -192,8 +192,9 @@ class MechanicalDrawingAnalyzer:
             base_prompt += "\n\n## Reference Context from Similar Drawings:\n"
             for idx, context in enumerate(rag_context[:3], 1):  # Limit to top 3
                 base_prompt += f"\n### Reference {idx}:\n"
-                base_prompt += f"- Part: {context.get('part_number', 'Unknown')}\n"
-                base_prompt += f"- Material: {context.get('material', 'Unknown')}\n"
+                # Domain knowledge context
+                base_prompt += f"- Standard: {context.get('title', 'Unknown')}\n"
+                base_prompt += f"- Relevance: {context.get('content', 'Unknown')}\n"
                 base_prompt += f"- Key specs: {context.get('summary', 'N/A')}\n"
         
         # Add compliance rules if provided
@@ -259,21 +260,20 @@ class MechanicalDrawingAnalyzer:
         """
         spec = result.specification
         summary = f"""
-📋 Drawing Analysis Summary
-{'='*50}
-📁 File: {Path(result.file_path).name}
-🏷️ Part Number: {spec.part_number or 'Not specified'}
-🔧 Material: {spec.material or 'Not specified'}
+            📋 Drawing Analysis Summary
+            {'='*50}
+            📁 File: {Path(result.file_path).name}
+            🏷️ Part Number: {spec.part_number or 'Not specified'}
+            🔧 Material: {spec.material or 'Not specified'}
 
-📐 Dimensions:
-- Critical dimensions found: {len(spec.critical_dimensions)}
-- Views identified: {', '.join([v.view_type for v in spec.views])}
-- GD&T requirements: {len(spec.gdt_requirements)}
+            📐 Dimensions:
+            - Critical dimensions found: {len(spec.critical_dimensions)}
+            - Views identified: {', '.join([v.view_type for v in spec.views])}
+            - GD&T requirements: {len(spec.gdt_requirements)}
 
-"""
+            """
         if result.compliance_violations:
-            summary += f"""⚠️ Compliance Issues: {len(result.compliance_violations)}
-"""
+            summary += f"""⚠️ Compliance Issues: {len(result.compliance_violations)}"""
             for v in result.compliance_violations[:3]:  # Show first 3
                 summary += f"  - {v}\n"
             if len(result.compliance_violations) > 3:
