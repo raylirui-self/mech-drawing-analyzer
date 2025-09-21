@@ -109,7 +109,16 @@ mech-drawing-analyzer/
 ├── src/
 │   ├── __init__.py
 │   ├── analyzer.py      # Core analysis logic
-│   └── compliance_rules.py
+│   ├── compliance_rules.py
+│   ├── mech_dwg_orchestrator.py # Modular Design: orchestrator
+│   ├── config.py # Modular Design: configuration setups
+│   ├── llm_client.py # Modular Design: LLMs
+│   ├── cv_processor.py # Modular Design: CV module
+│   ├── models.py # Modular Design: canvas for data input & output
+│   └── rag_engine.py # (WIP) Modular Design: RAG module
+├── knowledge_base/ # base for RAG
+│   ├── mechanical_drawing_knowledge_base.md
+│   └── mechanical_engineering_standards_regulations_law.md
 └── examples/            # Example files
     ├── mechanical_drawing.png
     └── sample_rules.json
@@ -122,7 +131,7 @@ from src.analyzer import MechanicalDrawingAnalyzer
 # Initialize with your preferred model
 analyzer = MechanicalDrawingAnalyzer(
     llm_provider="openai",  # or "claude", "ollama"
-    model="gpt-4.1-mini"  # or another preferred model
+    model="gpt-4o-mini"  # or another preferred model
 )
 
 # Analyze drawing
@@ -166,9 +175,9 @@ rules = {
 
 | Provider | Model | Requirements |
 |----------|-------|--------------|
-| OpenAI | GPT-4 | API key |
+| OpenAI | GPT | API key |
 | Anthropic | Claude 3 | API key |
-| Ollama | LLaVA 13B | Local GPU (8GB+ VRAM) |
+| Ollama | Gemma3 | Local GPU |
 
 ### Compliance Rules
 
@@ -231,9 +240,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🚀 Roadmap
 
 - [x] Modular design with orchestration
-- [ ] Enhance accuracy and consistency
+- [-] Enhance accuracy and consistency
+  - [-] addition of RAG
   - [ ] addition of OCR
-  - [ ] addition of RAG
   - [ ] optimized workflow & algorithm
   - [ ] Finetuning local model for better vision
   - [ ] others (TBD)
