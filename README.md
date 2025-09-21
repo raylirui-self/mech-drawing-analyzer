@@ -75,24 +75,6 @@ Copy-Item .env.example .env
 notepad .env
 ```
 
-### Running the Application
-
-#### Option 1: Command Line
-```powershell
-python src/analyzer.py --image .\examples\mechanical_drawing.png --rules .\examples\sample_rules.json
-```
-
-#### Option 2: Python Script
-```python
-from src.analyzer import MechanicalDrawingAnalyzer
-
-analyzer = MechanicalDrawingAnalyzer(llm_provider="openai")
-results = analyzer.analyze_drawing("drawing.png")
-print(results)
-```
-
-## 🎯 Usage Examples
-
 ## 📁 Project Structure
 
 ```
